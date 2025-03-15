@@ -55,12 +55,13 @@ const App = () => {
       })
   }, [])
 
+
   return (
     <div>
       <h1>Notes - AutoDeploy</h1>
       <Notification message={errorMessage}/>
       <ul>
-        {notes.map((note) => (
+        {notes && notes?.map((note) => (
           <Note key={note.id} note={note} onClick={() => toggleImportance(note.id)}/>
         ))}
       </ul>
