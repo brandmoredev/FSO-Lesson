@@ -7,7 +7,7 @@ const url = process.env.MONGODB_URI
 console.log('connecting to', url)
 
 mongoose.connect(url)
-  .then(result => {
+  .then(() => {
     console.log('connected to MongoDB')
   })
   .catch(error => {
@@ -16,7 +16,6 @@ mongoose.connect(url)
 
 
 // DO NOT SAVE YOUR PASSWORD TO GITHUB!!
-const password = process.argv[2]
 
 const noteSchema = new mongoose.Schema({
   content: {

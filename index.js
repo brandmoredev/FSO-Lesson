@@ -1,25 +1,25 @@
 require('dotenv').config()
 
-const express = require('express');
-const app = express();
-app.use(express.static('dist'));
-app.use(express.json());
+const express = require('express')
+const app = express()
+app.use(express.static('dist'))
+app.use(express.json())
 
-const cors = require('cors');
-app.use(cors());
+const cors = require('cors')
+app.use(cors())
 
-const Note = require('./models/note');
-const { default: next } = require('next');
+const Note = require('./models/note')
+const { default: next } = require('next')
 
 const requestLogger = (request, response, next) => {
   console.log('Method', request.method)
   console.log('Path', request.path)
   console.log('Body', request.body)
   console.log('---')
-  next();
+  next()
 }
 
-app.use(requestLogger);
+app.use(requestLogger)
 
 app.get('/api/notes', (request, response) => {
   Note.find({}).then(notes => {
@@ -29,7 +29,7 @@ app.get('/api/notes', (request, response) => {
 })
 
 app.get('/api/notes/:id', (request, response, next) => {
-  const id = request.params.id;
+  const id = request.params.id
   
   Note.findById(id)
     .then(note => {
@@ -43,24 +43,16 @@ app.get('/api/notes/:id', (request, response, next) => {
 })
 
 app.delete('/api/notes/:id', (request, response, next) => {
-  const id = request.params.id;
+  const id = request.params.id
   Note.findByIdAndDelete(id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
 })
 
-const generateId = () => {
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(note => Number(note.id)))
-    : 0;
-
-  return String(maxId + 1);
-}
-
 app.post('/api/notes', (request, response, next) => {
-  const body = request.body;
+  const body = request.body
 
   if(!body.content) {
     return response.status(400).json({
@@ -81,13 +73,13 @@ app.post('/api/notes', (request, response, next) => {
 })
 
 app.put('/api/notes/:id', (request, response) => {
-  const id = request.params.id;
-  const { content, important } = request.body;
+  const id = request.params.id
+  const { content, important } = request.body
 
   Note.findById(id)
     .then(note => {
       if (!note) {
-        return response.status(404).end();
+        return response.status(404).end()
       }
 
       note.content = content
@@ -102,14 +94,14 @@ app.put('/api/notes/:id', (request, response) => {
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`)
 })
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({error: 'unknown endpoint'})
 }
 
-app.use(unknownEndpoint);
+app.use(unknownEndpoint)
 
 //error handler middleware
 const errorHandler = (error, request, response, next) => {
