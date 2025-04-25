@@ -1,6 +1,7 @@
 const { test, after, beforeEach, describe } = require('node:test')
 const assert = require('node:assert')
 const Note = require('../models/note')
+const User = require('../models/user')
 const mongoose = require('mongoose')
 const helper = require('../tests/test_helper')
 const supertest = require('supertest')
@@ -10,13 +11,20 @@ const api = supertest(app)
 
 
 describe('when there are some notes saved initially', () => {
+  let testUser
+
   beforeEach(async () => {
     await Note.deleteMany({})
+    await User.deleteMany({})
     
-    for (let note of helper.initialNotes) {
-      let noteObject = new Note(note)
-      await noteObject.save()
-    }
+    testUser = new User({ username: 'testuser', name: 'Test User', passwordHash: 'hashedpw' })
+    await testUser.save()
+
+    const notesWithUser = helper.initialNotes.map(note => {
+      return { ...note, user: testUser._id }
+    })
+
+    await Note.insertMany(notesWithUser)
   })
 
   test('notes are returned as json', async () => {
@@ -69,6 +77,7 @@ describe('when there are some notes saved initially', () => {
       const newNote = {
         content: 'async/await simplifies making async calls',
         important: true,
+        userId: testUser._id.toString()
       }
     
       await api
@@ -88,7 +97,8 @@ describe('when there are some notes saved initially', () => {
 
     test('fails with status code 400 if data is invalid', async () => {
       const newNote = {
-        important: true
+        important: true,
+        userId: testUser._id.toString()
       }
     
       await api
